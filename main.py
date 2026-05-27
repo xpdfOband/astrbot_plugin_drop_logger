@@ -142,7 +142,7 @@ class DropLoggerPlugin(Star):
                     text = self.ranking.format_text(entries, days)
                     chain = MessageChain(chain=[Plain(text)])
 
-                session = MessageSession.from_str(f"aiocqhttp:group:{gid}")
+                session = MessageSession.from_str(f"aiocqhttp:GroupMessage:{gid}")
                 await self.context.send_message(session, chain)
                 logger.info(f"[drop-logger] Ranking sent to group {gid}")
 
