@@ -141,7 +141,7 @@ class DropLoggerPlugin(Star):
 
                 umo = self._group_umos.get(gid)
                 if not umo:
-                    umo = await self.get_kv_data(f"umo_{gid}")
+                    umo = await self.get_kv_data(f"umo_{gid}", "")
                 if not umo:
                     logger.warning(f"[drop-logger] No cached session for group {gid}, skipping")
                     continue
