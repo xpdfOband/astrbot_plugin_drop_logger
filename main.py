@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from astrbot.api import logger
+from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import AstrMessageEvent, filter
 from astrbot.api.message_components import Image, Plain
 from astrbot.api.star import Context, Star, StarTools
@@ -19,10 +19,9 @@ from .recognizer import Recognizer
 DATA_DIR = StarTools.get_data_dir("astrbot_plugin_drop_logger")
 
 
-class DropLogger(Star):
-    def __init__(self, context: Context, config: dict | None = None):
+class DropLoggerPlugin(Star):
+    def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context, config)
-        self.config = config or {}
         db_path = os.path.join(DATA_DIR, "drops.db")
         self.db = DropDB(db_path)
         self.recognizer = Recognizer(context, self.config)
