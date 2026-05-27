@@ -63,7 +63,9 @@ class DropLoggerPlugin(Star):
         user_name = event.get_sender_name()
 
         # 记录群的 unified_msg_origin，用于定时主动发消息
-        self._group_umos[group_id] = event.unified_msg_origin
+        umo = event.unified_msg_origin
+        self._group_umos[group_id] = umo
+        await self.put_kv_data(f"umo_{group_id}", umo)
 
         messages = event.get_messages()
         images = [c for c in messages if isinstance(c, Image)]
@@ -138,6 +140,8 @@ class DropLoggerPlugin(Star):
                     continue
 
                 umo = self._group_umos.get(gid)
+                if not umo:
+                    umo = await self.get_kv_data(f"umo_{gid}")
                 if not umo:
                     logger.warning(f"[drop-logger] No cached session for group {gid}, skipping")
                     continue
