@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body {
+    margin: 0;
+    padding: 20px;
+    font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #eee;
+    width: 400px;
+  }
+  .header {
+    text-align: center;
+    padding: 15px 0;
+    border-bottom: 2px solid #e94560;
+    margin-bottom: 15px;
+  }
+  .header h1 {
+    margin: 0;
+    font-size: 20px;
+    color: #e94560;
+  }
+  .header .subtitle {
+    font-size: 13px;
+    color: #888;
+    margin-top: 5px;
+  }
+  .rank-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+  }
+  .rank-item.top1 { border-left-color: #ffd700; background: rgba(255,215,0,0.08); }
+  .rank-item.top2 { border-left-color: #c0c0c0; background: rgba(192,192,192,0.06); }
+  .rank-item.top3 { border-left-color: #cd7f32; background: rgba(205,127,50,0.06); }
+  .medal {
+    font-size: 22px;
+    width: 35px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .rank-num {
+    font-size: 16px;
+    font-weight: bold;
+    color: #666;
+    width: 35px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .info {
+    flex: 1;
+    margin-left: 8px;
+    overflow: hidden;
+  }
+  .name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+  }
+  .items {
+    font-size: 12px;
+    color: #999;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .count {
+    font-size: 18px;
+    font-weight: bold;
+    color: #e94560;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+  .count-label {
+    font-size: 11px;
+    color: #888;
+  }
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: #555;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>出货排行榜</h1>
+    <div class="subtitle">最近 {{ days }} 天 · 共 {{ entries | length }} 人上榜</div>
+  </div>
+  {% for entry in entries %}
+  <div class="rank-item {% if loop.index == 1 %}top1{% elif loop.index == 2 %}top2{% elif loop.index == 3 %}top3{% endif %}">
+    {% if loop.index <= 3 %}
+    <div class="medal">{{ medals[loop.index0] }}</div>
+    {% else %}
+    <div class="rank-num">{{ loop.index }}</div>
+    {% endif %}
+    <div class="info">
+      <div class="name">{{ entry.user_name }}</div>
+      <div class="items">{{ entry.items }}</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="count">{{ entry.drop_count }}</div>
+      <div class="count-label">次出货</div>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="footer">统计时间：{{ timestamp }}</div>
+</body>
+</html>

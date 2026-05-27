@@ -1,0 +1,4 @@
+name: astrbot_plugin_drop_logger
+desc: 游戏出货记录插件 - 图片/文字识别出货，定时排行榜播报
+author: Oband
+version: 1.0.0

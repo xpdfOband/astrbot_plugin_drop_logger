@@ -1,0 +1,57 @@
+{
+  "llm_provider_id": {
+    "description": "图片识别使用的 AstrBot LLM Provider ID",
+    "type": "string",
+    "default": "gemini_flash"
+  },
+  "trigger_keywords": {
+    "description": "出货关键词列表（名称包含任一即视为出货）",
+    "type": "list",
+    "default": ["附魔卷轴", "结晶"]
+  },
+  "exclude_keywords": {
+    "description": "排除关键词（命中则不记录）",
+    "type": "list",
+    "default": []
+  },
+  "enable_text_record": {
+    "description": "是否启用纯文字出货记录",
+    "type": "bool",
+    "default": true
+  },
+  "text_append_tag": {
+    "description": "文字记录时附加的标签",
+    "type": "string",
+    "default": "出货"
+  },
+  "auto_reply": {
+    "description": "识别成功后是否回复确认消息",
+    "type": "bool",
+    "default": true
+  },
+  "cron_expression": {
+    "description": "排行榜定时播报 cron 表达式（默认每周日20:00）",
+    "type": "string",
+    "default": "0 20 * * 0"
+  },
+  "ranking_days": {
+    "description": "排行榜统计天数",
+    "type": "int",
+    "default": 7
+  },
+  "target_group_ids": {
+    "description": "定时播报的群号列表（留空则不自动播报）",
+    "type": "list",
+    "default": []
+  },
+  "command_keyword": {
+    "description": "查询排行榜命令名",
+    "type": "string",
+    "default": "出货排行"
+  },
+  "max_retries": {
+    "description": "LLM 识别失败最大重试次数",
+    "type": "int",
+    "default": 2
+  }
+}
