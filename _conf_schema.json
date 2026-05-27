@@ -1,8 +1,10 @@
 {
   "llm_provider_id": {
-    "description": "图片识别使用的 AstrBot LLM Provider ID",
+    "description": "图片识别使用的模型提供商",
+    "hint": "选择已配置的模型提供商，用于识别出货截图",
     "type": "string",
-    "default": "gemini_flash"
+    "default": "",
+    "_special": "select_provider"
   },
   "trigger_keywords": {
     "description": "出货关键词列表（名称包含任一即视为出货）",

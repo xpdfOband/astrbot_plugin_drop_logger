@@ -42,6 +42,17 @@ class Recorder:
 
         return False
 
+    # 常见口语前缀，提取物品名时去掉
+    _PREFIX_PATTERN = re.compile(
+        r"^(我|俺|咱)?(出了?|出了?个|出了?件|掉了?|获得[了]?|爆了?|摸到?了?)\s*",
+        re.IGNORECASE,
+    )
+
+    def _extract_item_name(self, text: str) -> str:
+        """从口语化文本中提取物品名。如 '我出了一个 高雅附魔卷轴' -> '高雅附魔卷轴'"""
+        cleaned = self._PREFIX_PATTERN.sub("", text.strip())
+        return cleaned.strip()
+
     @staticmethod
     def _keyword_match(text: str, keyword: str, compiled: Pattern | None = None) -> bool:
         if compiled is not None:
@@ -107,12 +118,16 @@ class Recorder:
         user_id: str,
         user_name: str,
     ) -> DropRecord | None:
-        drop_name = text.strip()
+        drop_name = self._extract_item_name(text)
         if not drop_name:
             return None
 
+        if not self._matches_keyword(drop_name):
+            logger.info(f"[drop-logger] Text '{drop_name}' not matched by keywords, skipping")
+            return None
+
         tag = self.config.get("text_append_tag", "出货")
-        remark = f"{drop_name} ({tag})"
+        remark = f"{text.strip()} ({tag})"
 
         record_id = await self.db.add_record(
             group_id=group_id,
