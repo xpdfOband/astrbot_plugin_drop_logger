@@ -66,6 +66,11 @@ class DropDB:
             await self._conn.execute(idx_sql)
         await self._conn.commit()
 
+    async def _get_conn(self) -> aiosqlite.Connection:
+        if self._conn is None:
+            self._conn = await aiosqlite.connect(self.db_path)
+        return self._conn
+
     async def terminate(self):
         if self._conn:
             await self._conn.close()
@@ -83,19 +88,21 @@ class DropDB:
         remark: str = "",
         image_path: str = "",
     ) -> int:
-        cursor = await self._conn.execute(
+        conn = await self._get_conn()
+        cursor = await conn.execute(
             """INSERT INTO drop_records
                (group_id, user_id, user_name, drop_name, drop_type, source, gold_value, remark, image_path)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (group_id, user_id, user_name, drop_name, drop_type, source, gold_value, remark, image_path),
         )
-        await self._conn.commit()
+        await conn.commit()
         return cursor.lastrowid
 
     async def get_ranking(self, group_id: str, days: int = 7) -> list[RankingEntry]:
+        conn = await self._get_conn()
         since = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
-        self._conn.row_factory = aiosqlite.Row
-        cursor = await self._conn.execute(
+        conn.row_factory = aiosqlite.Row
+        cursor = await conn.execute(
             """SELECT user_id, user_name,
                       COUNT(*) as drop_count,
                       GROUP_CONCAT(DISTINCT drop_name) as items,
@@ -109,12 +116,13 @@ class DropDB:
             (group_id, since),
         )
         rows = await cursor.fetchall()
-        self._conn.row_factory = None
+        conn.row_factory = None
         return [RankingEntry(**dict(row)) for row in rows]
 
     async def get_user_weekly_count(self, user_id: str, group_id: str) -> int:
+        conn = await self._get_conn()
         since = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
-        cursor = await self._conn.execute(
+        cursor = await conn.execute(
             """SELECT COUNT(*) FROM drop_records
                WHERE user_id = ? AND group_id = ? AND created_at >= ?""",
             (user_id, group_id, since),

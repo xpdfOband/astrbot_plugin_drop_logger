@@ -3,11 +3,9 @@ from __future__ import annotations
 import os
 
 from astrbot.api import AstrBotConfig, logger
-from astrbot.api.event import AstrMessageEvent, filter
+from astrbot.api.event import AstrMessageEvent, MessageChain, filter
 from astrbot.api.message_components import Image, Plain
 from astrbot.api.star import Context, Star, StarTools
-from astrbot.core.message.message_event_result import MessageChain
-from astrbot.core.platform.message_session import MessageSession
 
 from .db import DropDB
 from .image_renderer import ImageRenderer
@@ -30,6 +28,7 @@ class DropLoggerPlugin(Star):
         self.ranking = Ranking(self.db, self.config)
         self.notifier = Notifier(self.db, self.config)
         self.image_renderer = ImageRenderer(self)
+        self._group_umos: dict[str, str] = {}
 
     async def initialize(self):
         await self.db.initialize()
@@ -62,6 +61,9 @@ class DropLoggerPlugin(Star):
         group_id = event.get_group_id()
         user_id = event.get_sender_id()
         user_name = event.get_sender_name()
+
+        # 记录群的 unified_msg_origin，用于定时主动发消息
+        self._group_umos[group_id] = event.unified_msg_origin
 
         messages = event.get_messages()
         images = [c for c in messages if isinstance(c, Image)]
@@ -135,15 +137,19 @@ class DropLoggerPlugin(Star):
                 if not entries:
                     continue
 
+                umo = self._group_umos.get(gid)
+                if not umo:
+                    logger.warning(f"[drop-logger] No cached session for group {gid}, skipping")
+                    continue
+
                 image_path = await self.image_renderer.render_ranking(entries, days)
                 if image_path:
-                    chain = MessageChain(chain=[Image(file=image_path)])
+                    chain = MessageChain().file_image(image_path)
                 else:
                     text = self.ranking.format_text(entries, days)
-                    chain = MessageChain(chain=[Plain(text)])
+                    chain = MessageChain().message(text)
 
-                session = MessageSession.from_str(f"aiocqhttp:GroupMessage:{gid}")
-                await self.context.send_message(session, chain)
+                await self.context.send_message(umo, chain)
                 logger.info(f"[drop-logger] Ranking sent to group {gid}")
 
             except Exception as e:
