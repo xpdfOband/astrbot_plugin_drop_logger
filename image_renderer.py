@@ -43,7 +43,6 @@ class ImageRenderer:
         try:
             image_path = await self.star.html_render(
                 html_content,
-                {},
                 return_url=True,
             )
             logger.info(f"[drop-logger] Ranking image rendered: {image_path}")

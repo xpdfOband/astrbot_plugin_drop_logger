@@ -21,7 +21,8 @@ DATA_DIR = StarTools.get_data_dir("astrbot_plugin_drop_logger")
 
 class DropLoggerPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
-        super().__init__(context, config)
+        super().__init__(context)
+        self.config = config
         db_path = os.path.join(DATA_DIR, "drops.db")
         self.db = DropDB(db_path)
         self.recognizer = Recognizer(context, self.config)
